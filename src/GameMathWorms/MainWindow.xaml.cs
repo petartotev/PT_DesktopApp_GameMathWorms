@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GameMathWorms.Constants;
+using GameMathWorms.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -21,11 +24,13 @@ namespace GameMathWorms
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool redGoLeft, redGoRight, blueGoLeft, blueGoRight;
-        int playerSpeed = 10;
-        int speed = 12;
+        private readonly Target _target;
+        private readonly Player _playerBlue;
+        private readonly Player _playerRed;
 
-        DispatcherTimer gameTimer = new DispatcherTimer();
+        private readonly Random _random = new Random();
+        private readonly DispatcherTimer _gameTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _targetTimer = new DispatcherTimer();
 
         public MainWindow()
         {
@@ -33,33 +38,52 @@ namespace GameMathWorms
 
             GameCanvas.Focus();
 
-            gameTimer.Tick += GameTimerEvent;
-            gameTimer.Interval = TimeSpan.FromMilliseconds(20);
-            gameTimer.Start();
+            _gameTimer.Tick += GameTimerEvent;
+            _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
+            _gameTimer.Start();
+
+            _playerBlue = new Player(Blue);
+            _playerRed = new Player(Red);
+            _target = new Target(SomeLabel);
+
+            _targetTimer.Tick += TargetTimeEvent;
+            _targetTimer.Interval = TimeSpan.FromSeconds(GameConstants.Target.ResetSeconds);
+            _targetTimer.Start();
+        }
+
+        private void TargetTimeEvent(object sender, EventArgs e)
+        {
+            _target.SetRandomly();
+            MoveTargetOnCanvas(_target);
         }
 
         private void GameTimerEvent(object sender, EventArgs e)
         {
-            if (blueGoLeft && Canvas.GetLeft(Blue) > 10)
-            {
-                Canvas.SetLeft(Blue, Canvas.GetLeft(Blue) - playerSpeed);
-                ((ScaleTransform)Blue.RenderTransform).ScaleX = -1;
-            }
-            if (blueGoRight && Canvas.GetLeft(Blue) + (Blue.Width * 1.4) < Application.Current.MainWindow.Width)
-            {
-                Canvas.SetLeft(Blue, Canvas.GetLeft(Blue) + playerSpeed);
-                ((ScaleTransform)Blue.RenderTransform).ScaleX = 1;
-            }
+            MovePlayerOnCanvas(_playerBlue);
+            MovePlayerOnCanvas(_playerRed);
+        }
 
-            if (redGoLeft && Canvas.GetLeft(Red) > 10)
+        private void MoveTargetOnCanvas(Target target)
+        {
+            Canvas.SetLeft(
+                target.Label,
+                _random.Next(GameConstants.Target.MinPositionX, GameConstants.Target.MaxPositionX));
+            Canvas.SetTop(
+                target.Label,
+                _random.Next(GameConstants.Target.MinPositionY, GameConstants.Target.MaxPositionY));
+        }
+
+        private void MovePlayerOnCanvas(Player player)
+        {
+            if (player.IsMovingLeft && Canvas.GetLeft(player.Image) > 10)
             {
-                Canvas.SetLeft(Red, Canvas.GetLeft(Red) - playerSpeed);
-                ((ScaleTransform)Red.RenderTransform).ScaleX = -1;
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) - GameConstants.PlayerSpeed);
+                ((ScaleTransform)player.Image.RenderTransform).ScaleX = -1;
             }
-            if (redGoRight && Canvas.GetLeft(Red) + (Red.Width * 1.4) < Application.Current.MainWindow.Width)
+            if (player.IsMovingRight && Canvas.GetLeft(player.Image) + (player.Image.Width * 1.4) < Application.Current.MainWindow.Width)
             {
-                Canvas.SetLeft(Red, Canvas.GetLeft(Red) + playerSpeed);
-                ((ScaleTransform)Red.RenderTransform).ScaleX = 1;
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) + GameConstants.PlayerSpeed);
+                ((ScaleTransform)player.Image.RenderTransform).ScaleX = 1;
             }
         }
 
@@ -67,19 +91,19 @@ namespace GameMathWorms
         {
             if (e.Key == Key.A)
             {
-                blueGoLeft = true;
+                _playerBlue.IsMovingLeft = true;
             }
             if (e.Key == Key.D)
             {
-                blueGoRight = true;
+                _playerBlue.IsMovingRight = true;
             }
             if (e.Key == Key.Left)
             {
-                redGoLeft = true;
+                _playerRed.IsMovingLeft = true;
             }
             if (e.Key == Key.Right)
             {
-                redGoRight = true;
+                _playerRed.IsMovingRight = true;
             }
         }
 
@@ -87,20 +111,33 @@ namespace GameMathWorms
         {
             if (e.Key == Key.A)
             {
-                blueGoLeft = false;
+                _playerBlue.IsMovingLeft = false;
             }
             if (e.Key == Key.D)
             {
-                blueGoRight = false;
+                _playerBlue.IsMovingRight = false;
             }
             if (e.Key == Key.Left)
             {
-                redGoLeft = false;
+                _playerRed.IsMovingLeft = false;
             }
             if (e.Key == Key.Right)
             {
-                redGoRight = false;
+                _playerRed.IsMovingRight = false;
             }
+        }
+
+        // ----- Tempory Methods Stored As Examples -----
+        private void CreateNewLabelOnGrid()
+        {
+            Label label = new Label();
+            label.Height = 28;
+            label.Width = 100;
+            label.HorizontalAlignment = HorizontalAlignment.Left;
+            label.VerticalAlignment = VerticalAlignment.Top;
+            label.Content = "Test1";
+            label.Margin = new Thickness(211, 211, 0, 0);
+            GameGrid.Children.Add(label);
         }
     }
 }
