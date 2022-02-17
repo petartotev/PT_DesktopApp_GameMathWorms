@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,31 +37,48 @@ namespace GameMathWorms
         {
             InitializeComponent();
 
-            GameCanvas.Focus();
-
-            _gameTimer.Tick += GameTimerEvent;
-            _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
-            _gameTimer.Start();
-
             _playerBlue = new Player(Blue);
             _playerRed = new Player(Red);
             _target = new Target(SomeLabel);
+
+            PlayIntro();
+
+            GameCanvas.Focus();
+        }
+
+        private void StartGame()
+        {
+            _gameTimer.Tick += GameTimerEvent;
+            _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
+            _gameTimer.Start();
 
             _targetTimer.Tick += TargetTimeEvent;
             _targetTimer.Interval = TimeSpan.FromSeconds(GameConstants.Target.ResetSeconds);
             _targetTimer.Start();
         }
 
-        private void TargetTimeEvent(object sender, EventArgs e)
+        private void PlayIntro()
         {
-            _target.SetRandomly();
-            MoveTargetOnCanvas(_target);
+            GameAnimator.AnimateOpacity(TextWelcome, isAutoReverse: true);
+            GameAnimator.AnimateOpacity(TextTo, isAutoReverse: true);
+            GameAnimator.AnimateOpacity(TextMathWorms, isAutoReverse: true);
+
+            GameAnimator.AnimateOpacity(TextPressEnter, 5000, true);
+
+            GameAnimator.AnimateOpacity(_playerBlue.Image);
+            GameAnimator.AnimateOpacity(_playerRed.Image);
         }
 
         private void GameTimerEvent(object sender, EventArgs e)
         {
             MovePlayerOnCanvas(_playerBlue);
             MovePlayerOnCanvas(_playerRed);
+        }
+
+        private void TargetTimeEvent(object sender, EventArgs e)
+        {
+            _target.SetRandomly();
+            MoveTargetOnCanvas(_target);
         }
 
         private void MoveTargetOnCanvas(Target target)
@@ -87,8 +105,12 @@ namespace GameMathWorms
             }
         }
 
-        private void KeyIsDown(object sender, KeyEventArgs e)
+        private void HandleKeyDownEvent(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Enter)
+            {
+                StartGame();
+            }
             if (e.Key == Key.A)
             {
                 _playerBlue.IsMovingLeft = true;
@@ -107,7 +129,7 @@ namespace GameMathWorms
             }
         }
 
-        private void KeyIsUp(object sender, KeyEventArgs e)
+        private void HandleKeyUpEvent(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.A)
             {
@@ -130,13 +152,16 @@ namespace GameMathWorms
         // ----- Tempory Methods Stored As Examples -----
         private void CreateNewLabelOnGrid()
         {
-            Label label = new Label();
-            label.Height = 28;
-            label.Width = 100;
-            label.HorizontalAlignment = HorizontalAlignment.Left;
-            label.VerticalAlignment = VerticalAlignment.Top;
-            label.Content = "Test1";
-            label.Margin = new Thickness(211, 211, 0, 0);
+            var label = new Label
+            {
+                Height = 28,
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                Content = "Test1",
+                Margin = new Thickness(211, 211, 0, 0)
+            };
+
             GameGrid.Children.Add(label);
         }
     }

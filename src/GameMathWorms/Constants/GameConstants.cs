@@ -17,7 +17,7 @@ namespace GameMathWorms.Constants
             public const int MinPositionY = 0;
             public const int MaxPositionY = 300;
 
-            public const int ResetSeconds = 1;
+            public const int ResetSeconds = 2;
 
             public const int OperationAddMaxValue = 100;
             public const int OperationSubtractMaxValue = 100;
