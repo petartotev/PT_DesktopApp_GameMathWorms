@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>worm_icon_0.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="worm_cyan.png" />
+    <None Remove="worm_magenta.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="worm_cyan.png" />
+    <Resource Include="worm_magenta.png" />
+  </ItemGroup>
+
+</Project>
