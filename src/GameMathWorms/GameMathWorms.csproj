@@ -17,4 +17,8 @@
     <Resource Include="worm_magenta.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

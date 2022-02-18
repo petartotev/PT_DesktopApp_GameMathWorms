@@ -25,6 +25,8 @@ namespace GameMathWorms
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int _gameFinalGoal = 0;
+
         private readonly Target _target;
         private readonly Player _playerBlue;
         private readonly Player _playerRed;
@@ -37,9 +39,9 @@ namespace GameMathWorms
         {
             InitializeComponent();
 
-            _playerBlue = new Player(Blue);
-            _playerRed = new Player(Red);
-            _target = new Target(SomeLabel);
+            _playerBlue = new Player(Blue, TextBlueScore);
+            _playerRed = new Player(Red, TextRedScore);
+            _target = new Target(LabelTarget);
 
             PlayIntro();
 
@@ -48,6 +50,8 @@ namespace GameMathWorms
 
         private void StartGame()
         {
+            SetFinalGoalValue();
+
             _gameTimer.Tick += GameTimerEvent;
             _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
             _gameTimer.Start();
@@ -57,16 +61,22 @@ namespace GameMathWorms
             _targetTimer.Start();
         }
 
+        private void EndGame()
+        {
+            GameAnimator.AnimateOpacity(TextBye, 0, 1, 6000, isAutoReverse: false);
+            GameAnimator.AnimateOpacity(RectBye, 0, 1, 3000, isAutoReverse: false);
+        }
+
         private void PlayIntro()
         {
-            GameAnimator.AnimateOpacity(TextWelcome, isAutoReverse: true);
-            GameAnimator.AnimateOpacity(TextTo, isAutoReverse: true);
-            GameAnimator.AnimateOpacity(TextMathWorms, isAutoReverse: true);
+            GameAnimator.AnimateOpacity(TextWelcome, 0, 1, isAutoReverse: true);
+            GameAnimator.AnimateOpacity(TextTo, 0, 1, isAutoReverse: true);
+            GameAnimator.AnimateOpacity(TextMathWorms, 0, 1, isAutoReverse: true);
 
-            GameAnimator.AnimateOpacity(TextPressEnter, 5000, true);
+            GameAnimator.AnimateOpacity(TextPressEnter, 0, 1, 5000, true);
 
-            GameAnimator.AnimateOpacity(_playerBlue.Image);
-            GameAnimator.AnimateOpacity(_playerRed.Image);
+            GameAnimator.AnimateOpacity(_playerBlue.Image, 0, 1);
+            GameAnimator.AnimateOpacity(_playerRed.Image, 0, 1);
         }
 
         private void GameTimerEvent(object sender, EventArgs e)
@@ -77,30 +87,64 @@ namespace GameMathWorms
 
         private void TargetTimeEvent(object sender, EventArgs e)
         {
-            _target.SetRandomly();
-            MoveTargetOnCanvas(_target);
+            MoveTargetOnCanvas();
         }
 
-        private void MoveTargetOnCanvas(Target target)
+        private void SetFinalGoalValue()
         {
-            Canvas.SetLeft(
-                target.Label,
-                _random.Next(GameConstants.Target.MinPositionX, GameConstants.Target.MaxPositionX));
-            Canvas.SetTop(
-                target.Label,
-                _random.Next(GameConstants.Target.MinPositionY, GameConstants.Target.MaxPositionY));
+            _gameFinalGoal = GameConstants.Game.FinalGoalMaxLimit;
+            GameFinalGoal.Content = _gameFinalGoal;
+        }
+
+        private void MoveTargetOnCanvas()
+        {
+            _target.SetRandomly();
+
+            Canvas.SetLeft(_target.Label, _random.Next(GameConstants.Target.MinPositionX, GameConstants.Target.MaxPositionX));
+            Canvas.SetTop(_target.Label, GameConstants.Target.MinPositionY);
+
+            GameAnimator.AnimateFallingObject(_target);
+
+            //var targetleft = (Canvas.GetLeft(_target.Label));
+            //TargetX.Content = (Canvas.GetLeft(_target.Label));
+            //var targetTop = (Canvas.GetTop(_target.Label));
+            //TargetY.Content = (Canvas.GetTop(_target.Label));
+
+            //var playerRedLeft = (Canvas.GetLeft(_playerRed.Image));
+            //RedX.Content = (Canvas.GetLeft(_playerRed.Image));
+            //var playerRedTop = (Canvas.GetTop(_playerRed.Image));
+            //RedY.Content = (Canvas.GetTop(_playerRed.Image));
+
+            //var playerBlueLeft = (Canvas.GetLeft(_playerBlue.Image));
+            //BlueX.Content = (Canvas.GetLeft(_playerBlue.Image));
+            //var playerBlueTop = (Canvas.GetTop(_playerBlue.Image));
+            //BlueY.Content = (Canvas.GetTop(_playerBlue.Image));
+
+            CheckIfPlayerAndTargetIntersect(_playerBlue);
+            CheckIfPlayerAndTargetIntersect(_playerRed);
+        }
+
+        private void CheckIfPlayerAndTargetIntersect(Player player)
+        {
+            if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) &&
+                Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 300 &&
+                Canvas.GetTop(_target.Label) >= Canvas.GetTop(player.Image))
+            {
+                player.RecalculateScore(_target);
+                player.ScoreText.Content = player.Score;
+            }
         }
 
         private void MovePlayerOnCanvas(Player player)
         {
             if (player.IsMovingLeft && Canvas.GetLeft(player.Image) > 10)
             {
-                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) - GameConstants.PlayerSpeed);
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) - GameConstants.Player.Speed);
                 ((ScaleTransform)player.Image.RenderTransform).ScaleX = -1;
             }
             if (player.IsMovingRight && Canvas.GetLeft(player.Image) + (player.Image.Width * 1.4) < Application.Current.MainWindow.Width)
             {
-                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) + GameConstants.PlayerSpeed);
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) + GameConstants.Player.Speed);
                 ((ScaleTransform)player.Image.RenderTransform).ScaleX = 1;
             }
         }
@@ -110,6 +154,10 @@ namespace GameMathWorms
             if (e.Key == Key.Enter)
             {
                 StartGame();
+            }
+            if (e.Key == Key.Escape)
+            {
+                EndGame();
             }
             if (e.Key == Key.A)
             {
