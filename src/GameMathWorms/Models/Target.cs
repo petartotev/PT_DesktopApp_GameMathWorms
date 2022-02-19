@@ -1,8 +1,6 @@
 ﻿using GameMathWorms.Constants;
 using GameMathWorms.Enums;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Controls;
 
 namespace GameMathWorms.Models
@@ -25,7 +23,8 @@ namespace GameMathWorms.Models
         public void SetRandomly()
         {
             SetRandomOperation();
-            SetValueByOperation(Operation);
+            SetValueByOperation();
+
             Label.Content = this.ToString();
         }
 
@@ -37,18 +36,19 @@ namespace GameMathWorms.Models
                 TargetOperationEnum.Add => $"+{Value}",
                 TargetOperationEnum.Subtract => $"-{Value}",
                 TargetOperationEnum.Multiply => $"*{Value}",
-                TargetOperationEnum.Divide => $"/{Value}"
+                TargetOperationEnum.Divide => $"/{Value}",
+                _ => $"{Value}"
             };
         }
 
         private void SetRandomOperation()
         {
-            var enumValues = Enum.GetValues(typeof(TargetOperationEnum));
+            Array enumValues = Enum.GetValues(typeof(TargetOperationEnum));
 
             Operation = (TargetOperationEnum)enumValues.GetValue(_random.Next(1, enumValues.Length));
         }
 
-        private void SetValueByOperation(TargetOperationEnum operation)
+        private void SetValueByOperation()
         {
             Value = Operation switch
             {
@@ -56,7 +56,8 @@ namespace GameMathWorms.Models
                 TargetOperationEnum.Add => _random.Next(1, GameConstants.Target.OperationAddMaxValue),
                 TargetOperationEnum.Subtract => _random.Next(1, GameConstants.Target.OperationSubtractMaxValue),
                 TargetOperationEnum.Multiply => _random.Next(1, GameConstants.Target.OperationMultiplyMaxValue),
-                TargetOperationEnum.Divide => _random.Next(1, GameConstants.Target.OperationDivideMaxValue)
+                TargetOperationEnum.Divide => _random.Next(1, GameConstants.Target.OperationDivideMaxValue),
+                _ => 0
             };
         }
     }

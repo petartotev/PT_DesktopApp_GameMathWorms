@@ -1,7 +1,4 @@
 ﻿using GameMathWorms.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Controls;
 
 namespace GameMathWorms.Models
@@ -15,9 +12,11 @@ namespace GameMathWorms.Models
         }
 
         public int Score { get; set; }
+
         public Label ScoreText { get; set; }
 
         public bool IsMovingLeft { get; set; } = false;
+
         public bool IsMovingRight { get; set; } = false;
 
         public Image Image { get; set; }
@@ -29,7 +28,7 @@ namespace GameMathWorms.Models
                 TargetOperationEnum.Add => Score += target.Value,
                 TargetOperationEnum.Subtract => Score -= target.Value,
                 TargetOperationEnum.Multiply => Score *= target.Value,
-                TargetOperationEnum.Divide => Score *= target.Value,
+                TargetOperationEnum.Divide => Score /= target.Value,
                 TargetOperationEnum.None => Score,
                 _ => Score
             };

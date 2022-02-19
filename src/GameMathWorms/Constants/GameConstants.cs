@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GameMathWorms.Constants
+﻿namespace GameMathWorms.Constants
 {
     public class GameConstants
     {
-
         public class Game
         {
             public const int Speed = 12;
-            public const int FinalGoalMaxLimit = 301;
+            public const int FinalGoal = 101;
         }
 
         public class Canvas
@@ -34,12 +29,12 @@ namespace GameMathWorms.Constants
             public const int MinPositionY = 35;
             public const int MaxPositionY = 300;
 
-            public const int ResetSeconds = 2;
+            public const int ResetSeconds = 3;
 
             public const int SpeedFalling = 3;
 
-            public const int OperationAddMaxValue = 100;
-            public const int OperationSubtractMaxValue = 100;
+            public const int OperationAddMaxValue = Game.FinalGoal / 4;
+            public const int OperationSubtractMaxValue = Game.FinalGoal / 4;
             public const int OperationMultiplyMaxValue = 6;
             public const int OperationDivideMaxValue = 4;
         }
