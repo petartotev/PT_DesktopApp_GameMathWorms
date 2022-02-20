@@ -53,10 +53,10 @@ namespace GameMathWorms.Models
             Value = Operation switch
             {
                 TargetOperationEnum.None => 0,
-                TargetOperationEnum.Add => _random.Next(1, GameConstants.Target.OperationAddMaxValue),
-                TargetOperationEnum.Subtract => _random.Next(1, GameConstants.Target.OperationSubtractMaxValue),
-                TargetOperationEnum.Multiply => _random.Next(1, GameConstants.Target.OperationMultiplyMaxValue),
-                TargetOperationEnum.Divide => _random.Next(1, GameConstants.Target.OperationDivideMaxValue),
+                TargetOperationEnum.Add => _random.Next(GameConstants.Target.OperationAddMinValue, GameConstants.Target.OperationAddMaxValue),
+                TargetOperationEnum.Subtract => _random.Next(GameConstants.Target.OperationSubtractMinValue, GameConstants.Target.OperationSubtractMaxValue),
+                TargetOperationEnum.Multiply => _random.Next(GameConstants.Target.OperationMultiplyMinValue, GameConstants.Target.OperationMultiplyMaxValue),
+                TargetOperationEnum.Divide => _random.Next(GameConstants.Target.OperationDivideMinValue, GameConstants.Target.OperationDivideMaxValue),
                 _ => 0
             };
         }

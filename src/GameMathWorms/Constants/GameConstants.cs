@@ -5,7 +5,7 @@
         public class Game
         {
             public const int Speed = 12;
-            public const int FinalGoal = 101;
+            public const int FinalGoal = 10;
         }
 
         public class Canvas
@@ -33,10 +33,18 @@
 
             public const int SpeedFalling = 3;
 
-            public const int OperationAddMaxValue = Game.FinalGoal / 4;
-            public const int OperationSubtractMaxValue = Game.FinalGoal / 4;
-            public const int OperationMultiplyMaxValue = 6;
-            public const int OperationDivideMaxValue = 4;
+
+            public const int OperationAddMinValue = 1;
+            public const int OperationAddMaxValue = Game.FinalGoal / 3;
+
+            public const int OperationSubtractMinValue = 1;
+            public const int OperationSubtractMaxValue = Game.FinalGoal / 3;
+
+            public const int OperationMultiplyMinValue = 2;
+            public const int OperationMultiplyMaxValue = 4;
+
+            public const int OperationDivideMinValue = 2;
+            public const int OperationDivideMaxValue = 3;
         }
     }
 }

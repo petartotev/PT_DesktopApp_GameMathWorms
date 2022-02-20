@@ -2,13 +2,67 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace GameMathWorms.Models
 {
-    public static class ElementFactory
+    internal static class ElementFactory
     {
-        public static Label CreateNewLabel(string name, string content, int fontSize, Thickness margin, Thickness padding = default, Action<Label> setup = null)
+        internal static Button CreateButton(int width, int height, string content, Thickness margin, Action<Button> setup = null)
+        {
+            Button button = new Button
+            {
+                Width = width,
+                Height = height,
+                Content = content,
+                Background = new SolidColorBrush(Colors.Black),
+                Foreground = new SolidColorBrush(Colors.White),
+                FontFamily = new FontFamily("Arial Black"),
+                Margin = margin
+            };
+
+            setup?.Invoke(button);
+
+            return button;
+        }
+
+        internal static Canvas CreateCanvas(string name, Action<Canvas> setup = null)
+        {
+            Canvas gameCanvas = new Canvas
+            {
+                Name = name,
+                Background = new SolidColorBrush(Colors.Yellow),
+                Focusable = true
+            };
+
+            setup?.Invoke(gameCanvas);
+
+            return gameCanvas;
+        }
+
+        internal static Image CreateImage(string name, int width, int height, string url, Action<Image> setup = null)
+        {
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(@$"../../..{url}", UriKind.Relative);
+            image.EndInit();
+
+            Image final = new Image
+            {
+                Name = name,
+                Width = width,
+                Height = height,
+                RenderTransformOrigin = new Point(0.5, 1),
+                Source = image
+            };
+
+            setup?.Invoke(final);
+
+            return final;
+        }
+
+        internal static Label CreateLabel(string name, string content, int fontSize, Thickness margin, Thickness padding = default, Action<Label> setup = null)
         {
             Label label = new Label
             {
@@ -33,7 +87,7 @@ namespace GameMathWorms.Models
             return label;
         }
 
-        internal static Rectangle CreateNewRectangle(string name, int width, int height, int opacity = 1, Action<Rectangle> setup = null)
+        internal static Rectangle CreateRectangle(string name, int width, int height, int opacity = 1, Action<Rectangle> setup = null)
         {
             Rectangle rectangle = new Rectangle
             {

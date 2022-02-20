@@ -7,38 +7,5 @@
         mc:Ignorable="d"
         Title="Math Worms" Height="450" Width="800">
     <Grid Name="GameGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="423*"/>
-            <RowDefinition Height="11*"/>
-        </Grid.RowDefinitions>
-        <Canvas Name="GameCanvas" Background="Yellow" Focusable="True" KeyDown="HandleKeyDownEvent" KeyUp="HandleKeyUpEvent" Grid.RowSpan="2">
-            <Image Name="ImageBlue" Height="70" Width="60" Canvas.Left="20
-                   " Canvas.Top="340" RenderTransformOrigin="0.5,1" Source="/worm_cyan.png">
-                <Image.RenderTransform>
-                    <ScaleTransform ScaleX="1"/>
-                </Image.RenderTransform>
-            </Image>
-            <Label x:Name="LabelBlueScore" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="30" Cursor="Arrow" Foreground="DarkCyan" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,-3,0,0" Canvas.Left="153" Canvas.Top="-2"/>
-
-            <Image Name="ImageRed" Height="70" Width="60" Canvas.Left="720" Canvas.Top="340" RenderTransformOrigin="0.5,1" Source="/worm_magenta.png">
-                <Image.RenderTransform>
-                    <ScaleTransform ScaleX="-1"/>
-                </Image.RenderTransform>
-            </Image>
-            <Label x:Name="LabelRedScore" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="30" Cursor="Arrow" Foreground="Magenta" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,-3,0,0" Canvas.Left="587" Canvas.Top="-2"/>
-
-            <Label Name="LabelTarget" Content="+121" Canvas.Left="372" RenderTransformOrigin="0.5,1" FontFamily="Arial Black" FontSize="21" Background="Black" Foreground="White" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" ScrollViewer.CanContentScroll="True" IsEnabled="False" Canvas.Top="-32">
-                <Label.RenderTransform>
-                    <TranslateTransform Y="0"/>
-                </Label.RenderTransform>
-            </Label>
-
-            <Label x:Name="LabelBlueX" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Cyan" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,0,0,0" Canvas.Left="0" Canvas.Top="0"/>
-            <Label x:Name="LabelBlueY" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Cyan" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,10,0,0" Canvas.Left="0" Canvas.Top="0"/>
-            <Label x:Name="LabelRedX" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Magenta" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,20,0,0" Canvas.Left="0" Canvas.Top="0"/>
-            <Label x:Name="LabelRedY" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Magenta" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,30,0,0" Canvas.Left="0" Canvas.Top="0"/>
-            <Label x:Name="LabelTargetX" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Black" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,40,0,0" Canvas.Left="0" Canvas.Top="0"/>
-            <Label x:Name="LabelTargetY" Content="" FontWeight="Bold" FontStyle="Normal" FontSize="10" Cursor="Arrow" Foreground="Black" FontFamily="Arial Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="LeftToRight" Padding="0,0,0,0" Margin="0,50,0,0" Canvas.Left="0" Canvas.Top="0"/>
-        </Canvas>
     </Grid>
 </Window>

@@ -16,9 +16,12 @@ namespace GameMathWorms
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly Target _target;
-        private readonly Player _playerBlue;
-        private readonly Player _playerRed;
+        private Target _target;
+        private Player _playerBlue;
+        private Player _playerRed;
+        private Canvas _canvas;
+        private Button _buttonPlay;
+        private Button _buttonExit;
 
         private readonly Random _random = new Random();
         private readonly DispatcherTimer _gameTimer = new DispatcherTimer();
@@ -28,18 +31,152 @@ namespace GameMathWorms
         {
             InitializeComponent();
 
-            _playerBlue = new Player(ImageBlue, LabelBlueScore);
-            _playerRed = new Player(ImageRed, LabelRedScore);
-            _target = new Target(LabelTarget);
-
             InitializeGame();
-
-            GameCanvas.Focus();
         }
 
         private void InitializeGame()
         {
             PlayIntro();
+        }
+
+        private void PlayIntro()
+        {
+            Image imageBlue = ElementFactory.CreateImage("ImageBlue", 60, 70, "/worm_cyan.png", x => x.Margin = new Thickness(-720, 340, 0, 0));
+            _ = GameGrid.Children.Add(imageBlue);
+            imageBlue.RenderTransform = new ScaleTransform { ScaleX = 1 };
+
+            Image imageRed = ElementFactory.CreateImage("ImageRed", 60, 70, "/worm_magenta.png", x => x.Margin = new Thickness(720, 340, 0, 0));
+            _ = GameGrid.Children.Add(imageRed);
+            imageRed.RenderTransform = new ScaleTransform { ScaleX = -1 };
+
+            AnimateOpacity(imageBlue, 0, 1);
+            AnimateOpacity(imageRed, 0, 1);
+
+            Label labelWelcome = ElementFactory.CreateLabel("LabelWelcome", "WELCOME", 20, new Thickness(115, 305, 0, 0));
+            _ = GameGrid.Children.Add(labelWelcome);
+            AnimateOpacity(labelWelcome, 0, 1, 2000, isAutoReverse: false,
+                actionOnEnd: x => GameGrid.Children.Remove(labelWelcome));
+
+            Label labelTo = ElementFactory.CreateLabel("LabelTo", "TO", 20, new Thickness(115, 330, 0, 0));
+            _ = GameGrid.Children.Add(labelTo);
+            AnimateOpacity(labelTo, 0, 1, 2500, isAutoReverse: false,
+                actionOnEnd: x => GameGrid.Children.Remove(labelTo));
+
+            Label labelMathWorms = ElementFactory.CreateLabel("LabelMathWorms", "MATH WORMS!", 70, new Thickness(115, 345, 0, 0));
+            _ = GameGrid.Children.Add(labelMathWorms);
+            AnimateOpacity(labelMathWorms, 0, 1, 3000, isAutoReverse: false,
+                actionOnEnd: x => { AddButtons(); });
+
+            //Label labelPressEnter = ElementFactory.CreateNewLabel("LabelPressEnter", "PRESS ENTER TO PROCEED...", 10, new Thickness(0, 200, 0, 0));
+            //_ = GameGrid.Children.Add(labelPressEnter);
+            //AnimateOpacity(labelPressEnter, 0, 1, 5000, true);
+        }
+
+        private void ClickOnButtonPlay(object sender, RoutedEventArgs e)
+        {
+            StartGame();
+        }
+
+        private void ClickOnButtonExit(object sender, RoutedEventArgs e)
+        {
+            ExitGame();
+        }
+
+        private void AddButtons()
+        {
+            _buttonPlay = ElementFactory.CreateButton(180, 45, "PLAY", new Thickness(0, -50, 0, 0),
+                setup: x => x.Click += ClickOnButtonPlay);
+            _ = GameGrid.Children.Add(_buttonPlay);
+
+            _buttonExit = ElementFactory.CreateButton(180, 45, "EXIT", new Thickness(0, 50, 0, 0),
+                setup: x => x.Click += ClickOnButtonExit);
+            _ = GameGrid.Children.Add(_buttonExit);
+        }
+
+        private void RemoveButtons()
+        {
+            GameGrid.Children.Remove(_buttonPlay);
+            GameGrid.Children.Remove(_buttonExit);
+        }
+
+        private void StartGame()
+        {
+            RemoveButtons();
+            GameGrid.Children.Clear();
+
+            _canvas = ElementFactory.CreateCanvas("GameCanvas");
+            _ = GameGrid.Children.Add(_canvas);
+
+            _canvas.KeyDown += new KeyEventHandler(HandleKeyDownEvent);
+            _canvas.KeyUp += new KeyEventHandler(HandleKeyUpEvent);
+
+            Label labelBlueScore = ElementFactory.CreateLabel("LabelBlueScore", "", 30, new Thickness(0, 0, 0, 0),
+                setup: x => x.Foreground = new SolidColorBrush(Colors.DarkCyan));
+            Canvas.SetLeft(labelBlueScore, 175);
+            Canvas.SetTop(labelBlueScore, 0);
+            _ = _canvas.Children.Add(labelBlueScore);
+
+            Label labelRedScore = ElementFactory.CreateLabel("LabelRedScore", "", 30, new Thickness(0, 0, 0, 0),
+                setup: x => x.Foreground = new SolidColorBrush(Colors.Magenta));
+            Canvas.SetLeft(labelRedScore, 600);
+            Canvas.SetTop(labelRedScore, 0);
+            _ = _canvas.Children.Add(labelRedScore);
+
+            Image imageBlue = ElementFactory.CreateImage("ImageBlue", 60, 70, "/worm_cyan.png");
+            _ = _canvas.Children.Add(imageBlue);
+            Canvas.SetLeft(imageBlue, 0);
+            Canvas.SetTop(imageBlue, 340);
+            imageBlue.RenderTransform = new ScaleTransform { ScaleX = 1 };
+
+            Image imageRed = ElementFactory.CreateImage("ImageBlue", 60, 70, "/worm_magenta.png");
+            _ = _canvas.Children.Add(imageRed);
+            Canvas.SetLeft(imageRed, 720);
+            Canvas.SetTop(imageRed, 340);
+            imageRed.RenderTransform = new ScaleTransform { ScaleX = -1 };
+
+            Label labelTarget = ElementFactory.CreateLabel("LabelTarget", "+-0", 21, new Thickness(0, 0, 0, 0),
+            setup: x =>
+            {
+                x.Background = new SolidColorBrush(Colors.Black);
+                x.Foreground = new SolidColorBrush(Colors.White);
+            });
+            Canvas.SetLeft(labelTarget, 372);
+            Canvas.SetTop(labelTarget, -32);
+            _ = _canvas.Children.Add(labelTarget);
+
+            _playerBlue = new Player(imageBlue, labelBlueScore);
+            _playerRed = new Player(imageRed, labelRedScore);
+            _target = new Target(labelTarget);
+
+            _ = _canvas.Focus();
+
+            SetFinalGoalValue();
+
+            _gameTimer.Tick += GameTimerEvent;
+            _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
+            _gameTimer.Start();
+
+            _targetTimer.Tick += TargetTimeEvent;
+            _targetTimer.Interval = TimeSpan.FromSeconds(GameConstants.Target.ResetSeconds);
+            _targetTimer.Start();
+        }
+
+        private void ExitGame()
+        {
+            RemoveButtons();
+
+            Rectangle rectBye = ElementFactory.CreateRectangle(nameof(rectBye), 800, 450, 1,
+                setup: x => x.Fill = new SolidColorBrush(Colors.Black));
+            Grid.SetZIndex(rectBye, 98);
+            _ = GameGrid.Children.Add(rectBye);
+
+            Label labelBye = ElementFactory.CreateLabel(nameof(labelBye), "BYE...", 70, new Thickness(300, 175, 0, 0),
+                setup: x => x.Foreground = new SolidColorBrush(Colors.White));
+            Grid.SetZIndex(labelBye, 99);
+            _ = GameGrid.Children.Add(labelBye);
+
+            AnimateOpacity(rectBye, 0, 1, 1000, isAutoReverse: false);
+            AnimateOpacity(labelBye, 0, 1, 3000, isAutoReverse: false, actionOnEnd: x => Application.Current.Shutdown());
         }
 
         // ========== Timer Events ==========
@@ -104,86 +241,36 @@ namespace GameMathWorms
         }
 
         // ========== Game Flow ==========
-        private void PlayIntro()
-        {
-            Label labelWelcome = ElementFactory.CreateNewLabel("LabelWelcome", "WELCOME", 20, new Thickness(115, 305, 0, 0));
-            _ = GameCanvas.Children.Add(labelWelcome);
-            AnimateOpacity(labelWelcome, 0, 1, 5000, isAutoReverse: false,
-                actionOnEnd: x => GameCanvas.Children.Remove(labelWelcome));
-
-            Label labelTo = ElementFactory.CreateNewLabel("LabelTo", "TO", 20, new Thickness(115, 330, 0, 0));
-            _ = GameCanvas.Children.Add(labelTo);
-            AnimateOpacity(labelTo, 0, 1, 5000, isAutoReverse: false,
-                actionOnEnd: x => GameCanvas.Children.Remove(labelTo));
-
-            Label labelMathWorms = ElementFactory.CreateNewLabel("LabelMathWorms", "MATH WORMS!", 70, new Thickness(115, 345, 0, 0));
-            _ = GameCanvas.Children.Add(labelMathWorms);
-            AnimateOpacity(labelMathWorms, 0, 1, 5000, isAutoReverse: false,
-                actionOnEnd: x => GameCanvas.Children.Remove(labelMathWorms));
-
-            Label labelPressEnter = ElementFactory.CreateNewLabel("LabelPressEnter", "PRESS ENTER TO PROCEED...", 10, new Thickness(0, 200, 0, 0));
-            _ = GameCanvas.Children.Add(labelPressEnter);
-            AnimateOpacity(labelPressEnter, 0, 1, 5000, true);
-
-            AnimateOpacity(_playerBlue.Image, 0, 1);
-            AnimateOpacity(_playerRed.Image, 0, 1);
-        }
-
-        private void StartGame()
-        {
-            SetFinalGoalValue();
-
-            _gameTimer.Tick += GameTimerEvent;
-            _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
-            _gameTimer.Start();
-
-            _targetTimer.Tick += TargetTimeEvent;
-            _targetTimer.Interval = TimeSpan.FromSeconds(GameConstants.Target.ResetSeconds);
-            _targetTimer.Start();
-        }
 
         private void SetFinalGoalValue()
         {
-            Label labelFinalGoalText = ElementFactory.CreateNewLabel("LabelFinalGoalText", "FINAL GOAL", 10, new Thickness(355, 0, 0, 0));
-            _ = GameCanvas.Children.Add(labelFinalGoalText);
+            Label labelFinalGoalText = ElementFactory.CreateLabel("LabelFinalGoalText", "FINAL GOAL", 10, new Thickness(355, 0, 0, 0));
+            _ = _canvas.Children.Add(labelFinalGoalText);
 
-            Label labelFinalGoalValue = ElementFactory.CreateNewLabel("LabelFinalGoalValue", "0", 30, new Thickness(360, 15, 0, 0));
-            _ = GameCanvas.Children.Add(labelFinalGoalValue);
+            Label labelFinalGoalValue = ElementFactory.CreateLabel("LabelFinalGoalValue", "0", 30, new Thickness(360, 15, 0, 0));
+            _ = _canvas.Children.Add(labelFinalGoalValue);
             labelFinalGoalValue.Content = GameConstants.Game.FinalGoal;
 
-            LabelBlueScore.Content = _playerBlue.Score;
-            LabelRedScore.Content = _playerRed.Score;
-        }
-
-        private void ExitGame()
-        {
-            Rectangle rectBye = ElementFactory.CreateNewRectangle(nameof(rectBye), 800, 450, 1,
-                setup: x => x.Fill = new SolidColorBrush(Colors.Black));
-            Canvas.SetZIndex(rectBye, 98);
-            _ = GameCanvas.Children.Add(rectBye);
-
-            Label labelBye = ElementFactory.CreateNewLabel(nameof(labelBye), "BYE...", 70, new Thickness(300, 175, 0, 0),
-                setup: x => x.Foreground = new SolidColorBrush(Colors.White));
-            Canvas.SetZIndex(labelBye, 99);
-            _ = GameCanvas.Children.Add(labelBye);
-
-            AnimateOpacity(rectBye, 0, 1, 3000, isAutoReverse: false);
-            AnimateOpacity(labelBye, 0, 1, 6000, isAutoReverse: false, actionOnEnd: x => Application.Current.Shutdown());
+            _playerBlue.ScoreText.Content = _playerBlue.Score;
+            _playerRed.ScoreText.Content = _playerRed.Score;
         }
 
         private void PlayWonAnimation(Player player)
-        {
-            Rectangle rectWon = ElementFactory.CreateNewRectangle(nameof(rectWon), 800, 450, 1,
-                setup: x => x.Fill = new SolidColorBrush(Colors.GreenYellow));
-            Canvas.SetZIndex(rectWon, 1);
-            _ = GameCanvas.Children.Add(rectWon);
-
+        {            
             Canvas.SetZIndex(player.Image, 2);
 
-            Label labelWon = ElementFactory.CreateNewLabel(nameof(labelWon), $"WON!", 70, new Thickness(300, 175, 0, 0),
+            Rectangle rectWon = ElementFactory.CreateRectangle(nameof(rectWon), 800, 450, 1,
+                setup: x => x.Fill = new SolidColorBrush(Colors.GreenYellow));
+            Canvas.SetZIndex(rectWon, 1);
+            _ = _canvas.Children.Add(rectWon);
+
+            Label labelWon = ElementFactory.CreateLabel(nameof(labelWon), $"WON!", 70, new Thickness(300, 50, 0, 0),
                 setup: x => x.Foreground = new SolidColorBrush(Colors.Black));
             Canvas.SetZIndex(labelWon, 2);
-            _ = GameCanvas.Children.Add(labelWon);
+            _ = _canvas.Children.Add(labelWon);
+
+            AnimateOpacity(rectWon, 0, 1, 1000);
+            AnimateOpacity(labelWon, 0, 1, 1000, false, actionOnEnd: x => AddButtons());
         }
 
         private void MovePlayerOnCanvas(Player player)
@@ -212,8 +299,6 @@ namespace GameMathWorms
 
         private void UpdatePlayerScoreIfIntersectsWithTarget(Player player)
         {
-            DisplayCurrentPositions();
-
             if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) - 100 &&
                 Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 100 &&
                 Canvas.GetTop(_target.Label) >= Canvas.GetTop(player.Image))
@@ -221,24 +306,6 @@ namespace GameMathWorms
                 player.RecalculateScore(_target);
                 player.ScoreText.Content = player.Score;
             }
-        }
-
-        private void DisplayCurrentPositions()
-        {
-            double targetleft = Canvas.GetLeft(_target.Label);
-            LabelTargetX.Content = targetleft;
-            double targetTop = Canvas.GetTop(_target.Label);
-            LabelTargetY.Content = targetTop;
-
-            double playerRedLeft = Canvas.GetLeft(_playerRed.Image);
-            LabelRedX.Content = playerRedLeft;
-            double playerRedTop = Canvas.GetTop(_playerRed.Image);
-            LabelRedY.Content = playerRedTop;
-
-            double playerBlueLeft = Canvas.GetLeft(_playerBlue.Image);
-            LabelBlueX.Content = playerBlueLeft;
-            double playerBlueTop = Canvas.GetTop(_playerBlue.Image);
-            LabelBlueY.Content = playerBlueTop;
         }
 
         private bool IsPlayerWinner(Player player)
@@ -288,7 +355,7 @@ namespace GameMathWorms
                 AutoReverse = false
             };
 
-            Storyboard.SetTargetName(animationFalling, target.Label.Name);
+            Storyboard.SetTarget(animationFalling, target.Label);
             Storyboard.SetTargetProperty(animationFalling, new PropertyPath(Canvas.TopProperty));
 
             Storyboard storyboardFalling = new Storyboard();
