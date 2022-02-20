@@ -1,6 +1,8 @@
 ﻿using GameMathWorms.Constants;
 using GameMathWorms.Models;
 using System;
+using System.ComponentModel;
+using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,20 +18,28 @@ namespace GameMathWorms
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Random _random = new Random();
+        private readonly SoundPlayer _soundPlayer = new SoundPlayer(@$"../../../../../res/audio/clockmaker.wav");
+
         private Target _target;
         private Player _playerBlue;
         private Player _playerRed;
         private Canvas _canvas;
+
         private Button _buttonPlay;
         private Button _buttonExit;
+        private Button _buttonMusic;
 
-        private readonly Random _random = new Random();
-        private readonly DispatcherTimer _gameTimer = new DispatcherTimer();
-        private readonly DispatcherTimer _targetTimer = new DispatcherTimer();
+        private bool _isMusicOn = false;
+
+        private DispatcherTimer _gameTimer = new DispatcherTimer();
+        private DispatcherTimer _targetTimer = new DispatcherTimer();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            _soundPlayer.PlayLooping();
 
             InitializeGame();
         }
@@ -82,6 +92,30 @@ namespace GameMathWorms
             ExitGame();
         }
 
+        private void ClickOnButtonMusic(object sender, RoutedEventArgs e)
+        {
+            _isMusicOn = !_isMusicOn;
+
+            if (_isMusicOn)
+            {
+                _buttonMusic.Content = "ON";
+                _buttonMusic.Background = new SolidColorBrush(Colors.Black);
+                _buttonMusic.Foreground = new SolidColorBrush(Colors.White);
+
+                //BackgroundWorker thread = new BackgroundWorker();
+                //thread.DoWork += (sender, e) => { _player.PlayLooping(); };
+
+                _soundPlayer.PlayLooping();
+            }
+            else
+            {
+                _buttonMusic.Content = "OFF";
+                _buttonMusic.Background = new SolidColorBrush(Colors.White);
+                _buttonMusic.Foreground = new SolidColorBrush(Colors.Black);
+                _soundPlayer.Stop();
+            }
+        }
+
         private void AddButtons()
         {
             _buttonPlay = ElementFactory.CreateButton(180, 45, "PLAY", new Thickness(0, -50, 0, 0),
@@ -101,11 +135,18 @@ namespace GameMathWorms
 
         private void StartGame()
         {
+            if (!_isMusicOn)
+            {
+                _soundPlayer.Stop();
+            }
+
             RemoveButtons();
             GameGrid.Children.Clear();
 
             _canvas = ElementFactory.CreateCanvas("GameCanvas");
             _ = GameGrid.Children.Add(_canvas);
+
+            SetMusicButton();
 
             _canvas.KeyDown += new KeyEventHandler(HandleKeyDownEvent);
             _canvas.KeyUp += new KeyEventHandler(HandleKeyUpEvent);
@@ -152,13 +193,31 @@ namespace GameMathWorms
 
             SetFinalGoalValue();
 
-            _gameTimer.Tick += GameTimerEvent;
+            _gameTimer.Stop();
+            _gameTimer = new DispatcherTimer();
+            _gameTimer.Tick += PlayerMovementEvent;
             _gameTimer.Interval = TimeSpan.FromMilliseconds(20);
             _gameTimer.Start();
 
-            _targetTimer.Tick += TargetTimeEvent;
+            _targetTimer.Stop();
+            _targetTimer = new DispatcherTimer();
+            _targetTimer.Tick += TargetMovementEvent;
             _targetTimer.Interval = TimeSpan.FromSeconds(GameConstants.Target.ResetSeconds);
             _targetTimer.Start();
+        }
+
+        private void SetMusicButton()
+        {
+            _buttonMusic = ElementFactory.CreateButton(30, 30, "OFF", new Thickness(-0, -0, 0, 0),
+                setup: x =>
+                {
+                    x.Content = _isMusicOn ? "ON" : "OFF";
+                    x.Click += ClickOnButtonMusic;
+                    x.FontSize = 10;
+                });
+            Canvas.SetLeft(_buttonMusic, 5);
+            Canvas.SetTop(_buttonMusic, 5);
+            _ = _canvas.Children.Add(_buttonMusic);
         }
 
         private void ExitGame()
@@ -180,13 +239,13 @@ namespace GameMathWorms
         }
 
         // ========== Timer Events ==========
-        private void GameTimerEvent(object sender, EventArgs e)
+        private void PlayerMovementEvent(object sender, EventArgs e)
         {
             MovePlayerOnCanvas(_playerBlue);
             MovePlayerOnCanvas(_playerRed);
         }
 
-        private void TargetTimeEvent(object sender, EventArgs e)
+        private void TargetMovementEvent(object sender, EventArgs e)
         {
             MoveTargetOnCanvas();
         }
@@ -241,7 +300,6 @@ namespace GameMathWorms
         }
 
         // ========== Game Flow ==========
-
         private void SetFinalGoalValue()
         {
             Label labelFinalGoalText = ElementFactory.CreateLabel("LabelFinalGoalText", "FINAL GOAL", 10, new Thickness(355, 0, 0, 0));
