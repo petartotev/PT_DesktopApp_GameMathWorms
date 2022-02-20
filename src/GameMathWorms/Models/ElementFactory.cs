@@ -29,37 +29,38 @@ namespace GameMathWorms.Models
 
         internal static Canvas CreateCanvas(string name, Action<Canvas> setup = null)
         {
-            Canvas gameCanvas = new Canvas
+            Canvas canvas = new Canvas
             {
                 Name = name,
                 Background = new SolidColorBrush(Colors.Yellow),
                 Focusable = true
             };
 
-            setup?.Invoke(gameCanvas);
+            setup?.Invoke(canvas);
 
-            return gameCanvas;
+            return canvas;
         }
 
         internal static Image CreateImage(string name, int width, int height, string url, Action<Image> setup = null)
         {
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(@$"../../..{url}", UriKind.Relative);
-            image.EndInit();
+            BitmapImage imageBitmap = new BitmapImage();
 
-            Image final = new Image
+            imageBitmap.BeginInit();
+            imageBitmap.UriSource = new Uri(@$"../../..{url}", UriKind.Relative);
+            imageBitmap.EndInit();
+
+            Image image = new Image
             {
                 Name = name,
                 Width = width,
                 Height = height,
                 RenderTransformOrigin = new Point(0.5, 1),
-                Source = image
+                Source = imageBitmap
             };
 
-            setup?.Invoke(final);
+            setup?.Invoke(image);
 
-            return final;
+            return image;
         }
 
         internal static Label CreateLabel(string name, string content, int fontSize, Thickness margin, Thickness padding = default, Action<Label> setup = null)

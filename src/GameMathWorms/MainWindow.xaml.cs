@@ -1,7 +1,6 @@
 ﻿using GameMathWorms.Constants;
 using GameMathWorms.Models;
 using System;
-using System.ComponentModel;
 using System.Media;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,9 +12,6 @@ using System.Windows.Threading;
 
 namespace GameMathWorms
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private readonly Random _random = new Random();
@@ -44,93 +40,23 @@ namespace GameMathWorms
             InitializeGame();
         }
 
+        // ==================== Game Flow ====================
         private void InitializeGame()
         {
-            PlayIntro();
-        }
-
-        private void PlayIntro()
-        {
-            Image imageBlue = ElementFactory.CreateImage("ImageBlue", 60, 70, "/worm_cyan.png", x => x.Margin = new Thickness(-720, 340, 0, 0));
-            _ = GameGrid.Children.Add(imageBlue);
-            imageBlue.RenderTransform = new ScaleTransform { ScaleX = 1 };
-
-            Image imageRed = ElementFactory.CreateImage("ImageRed", 60, 70, "/worm_magenta.png", x => x.Margin = new Thickness(720, 340, 0, 0));
-            _ = GameGrid.Children.Add(imageRed);
-            imageRed.RenderTransform = new ScaleTransform { ScaleX = -1 };
-
-            AnimateOpacity(imageBlue, 0, 1);
-            AnimateOpacity(imageRed, 0, 1);
+            _ = AddPlayerImageElement("ImageBlue", "/worm_cyan.png", scaleX: 1, new Thickness(-720, 340, 0, 0));
+            _ = AddPlayerImageElement("ImageRed", "/worm_magenta.png", scaleX: -1, new Thickness(720, 340, 0, 0));
 
             Label labelWelcome = ElementFactory.CreateLabel("LabelWelcome", "WELCOME", 20, new Thickness(115, 305, 0, 0));
             _ = GameGrid.Children.Add(labelWelcome);
-            AnimateOpacity(labelWelcome, 0, 1, 2000, isAutoReverse: false,
-                actionOnEnd: x => GameGrid.Children.Remove(labelWelcome));
+            AnimateOpacity(labelWelcome, 0, 1, 2000, actionOnEnd: x => GameGrid.Children.Remove(labelWelcome));
 
             Label labelTo = ElementFactory.CreateLabel("LabelTo", "TO", 20, new Thickness(115, 330, 0, 0));
             _ = GameGrid.Children.Add(labelTo);
-            AnimateOpacity(labelTo, 0, 1, 2500, isAutoReverse: false,
-                actionOnEnd: x => GameGrid.Children.Remove(labelTo));
+            AnimateOpacity(labelTo, 0, 1, 2500, actionOnEnd: x => GameGrid.Children.Remove(labelTo));
 
             Label labelMathWorms = ElementFactory.CreateLabel("LabelMathWorms", "MATH WORMS!", 70, new Thickness(115, 345, 0, 0));
             _ = GameGrid.Children.Add(labelMathWorms);
-            AnimateOpacity(labelMathWorms, 0, 1, 3000, isAutoReverse: false,
-                actionOnEnd: x => { AddButtons(); });
-
-            //Label labelPressEnter = ElementFactory.CreateNewLabel("LabelPressEnter", "PRESS ENTER TO PROCEED...", 10, new Thickness(0, 200, 0, 0));
-            //_ = GameGrid.Children.Add(labelPressEnter);
-            //AnimateOpacity(labelPressEnter, 0, 1, 5000, true);
-        }
-
-        private void ClickOnButtonPlay(object sender, RoutedEventArgs e)
-        {
-            StartGame();
-        }
-
-        private void ClickOnButtonExit(object sender, RoutedEventArgs e)
-        {
-            ExitGame();
-        }
-
-        private void ClickOnButtonMusic(object sender, RoutedEventArgs e)
-        {
-            _isMusicOn = !_isMusicOn;
-
-            if (_isMusicOn)
-            {
-                _buttonMusic.Content = "ON";
-                _buttonMusic.Background = new SolidColorBrush(Colors.Black);
-                _buttonMusic.Foreground = new SolidColorBrush(Colors.White);
-
-                //BackgroundWorker thread = new BackgroundWorker();
-                //thread.DoWork += (sender, e) => { _player.PlayLooping(); };
-
-                _soundPlayer.PlayLooping();
-            }
-            else
-            {
-                _buttonMusic.Content = "OFF";
-                _buttonMusic.Background = new SolidColorBrush(Colors.White);
-                _buttonMusic.Foreground = new SolidColorBrush(Colors.Black);
-                _soundPlayer.Stop();
-            }
-        }
-
-        private void AddButtons()
-        {
-            _buttonPlay = ElementFactory.CreateButton(180, 45, "PLAY", new Thickness(0, -50, 0, 0),
-                setup: x => x.Click += ClickOnButtonPlay);
-            _ = GameGrid.Children.Add(_buttonPlay);
-
-            _buttonExit = ElementFactory.CreateButton(180, 45, "EXIT", new Thickness(0, 50, 0, 0),
-                setup: x => x.Click += ClickOnButtonExit);
-            _ = GameGrid.Children.Add(_buttonExit);
-        }
-
-        private void RemoveButtons()
-        {
-            GameGrid.Children.Remove(_buttonPlay);
-            GameGrid.Children.Remove(_buttonExit);
+            AnimateOpacity(labelMathWorms, 0, 1, 3000, actionOnEnd: x => AddMenuButtons());
         }
 
         private void StartGame()
@@ -140,16 +66,16 @@ namespace GameMathWorms
                 _soundPlayer.Stop();
             }
 
-            RemoveButtons();
+            RemoveMenuButtons();
+
             GameGrid.Children.Clear();
 
             _canvas = ElementFactory.CreateCanvas("GameCanvas");
-            _ = GameGrid.Children.Add(_canvas);
-
-            SetMusicButton();
-
             _canvas.KeyDown += new KeyEventHandler(HandleKeyDownEvent);
             _canvas.KeyUp += new KeyEventHandler(HandleKeyUpEvent);
+            _ = GameGrid.Children.Add(_canvas);
+
+            AddMusicButton();
 
             Label labelBlueScore = ElementFactory.CreateLabel("LabelBlueScore", "", 30, new Thickness(0, 0, 0, 0),
                 setup: x => x.Foreground = new SolidColorBrush(Colors.DarkCyan));
@@ -206,7 +132,118 @@ namespace GameMathWorms
             _targetTimer.Start();
         }
 
-        private void SetMusicButton()
+        private void ExitGame()
+        {
+            RemoveMenuButtons();
+
+            Rectangle rectangleBye = ElementFactory.CreateRectangle(nameof(rectangleBye), 800, 450, 1,
+                setup: x => x.Fill = new SolidColorBrush(Colors.Black));
+            Grid.SetZIndex(rectangleBye, 98);
+            _ = GameGrid.Children.Add(rectangleBye);
+            AnimateOpacity(rectangleBye, 0, 1, 1000);
+
+            Label labelBye = ElementFactory.CreateLabel(nameof(labelBye), "BYE...", 70, new Thickness(300, 175, 0, 0),
+                setup: x => x.Foreground = new SolidColorBrush(Colors.White));
+            Grid.SetZIndex(labelBye, 99);
+            _ = GameGrid.Children.Add(labelBye);
+            AnimateOpacity(labelBye, 0, 1, 3000, actionOnEnd: x => Application.Current.Shutdown());
+        }
+
+        private void SetFinalGoalValue()
+        {
+            Label labelFinalGoalText = ElementFactory.CreateLabel("LabelFinalGoalText", "FINAL GOAL", 10, new Thickness(355, 0, 0, 0));
+            _ = _canvas.Children.Add(labelFinalGoalText);
+
+            Label labelFinalGoalValue = ElementFactory.CreateLabel("LabelFinalGoalValue", "0", 30, new Thickness(360, 15, 0, 0));
+            _ = _canvas.Children.Add(labelFinalGoalValue);
+            labelFinalGoalValue.Content = GameConstants.Game.FinalGoal;
+
+            _playerBlue.ScoreText.Content = _playerBlue.Score;
+            _playerRed.ScoreText.Content = _playerRed.Score;
+        }
+
+        private void MovePlayerOnCanvas(Player player)
+        {
+            if (player.IsMovingLeft && Canvas.GetLeft(player.Image) > 10)
+            {
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) - GameConstants.Player.Speed);
+                ((ScaleTransform)player.Image.RenderTransform).ScaleX = -1;
+            }
+            else if (player.IsMovingRight && Canvas.GetLeft(player.Image) + (player.Image.Width * 1.4) < Application.Current.MainWindow.Width)
+            {
+                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) + GameConstants.Player.Speed);
+                ((ScaleTransform)player.Image.RenderTransform).ScaleX = 1;
+            }
+        }
+
+        private void MoveTargetOnCanvas()
+        {
+            _target.RandomlySet();
+
+            Canvas.SetLeft(_target.Label, _random.Next(GameConstants.Target.MinPositionX, GameConstants.Target.MaxPositionX));
+            Canvas.SetTop(_target.Label, GameConstants.Target.MinPositionY);
+
+            AnimateFallingObject(_target);
+        }
+
+        private void UpdatePlayerScoreIfIntersectsWithTarget(Player player)
+        {
+            if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) - 100 &&
+                Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 100 &&
+                Canvas.GetTop(_target.Label) >= Canvas.GetTop(player.Image))
+            {
+                player.RecalculateScore(_target);
+                player.ScoreText.Content = player.Score;
+            }
+        }
+
+        private bool IsPlayerWinner(Player player)
+        {
+            return player.Score == GameConstants.Game.FinalGoal;
+        }
+
+        private void PlayWonAnimation(Player player)
+        {
+            Canvas.SetZIndex(player.Image, 2);
+
+            Rectangle rectWon = ElementFactory.CreateRectangle(nameof(rectWon), 800, 450, 1,
+                setup: x => x.Fill = new SolidColorBrush(Colors.GreenYellow));
+            Canvas.SetZIndex(rectWon, 1);
+            _ = _canvas.Children.Add(rectWon);
+
+            Label labelWon = ElementFactory.CreateLabel(nameof(labelWon), $"WON!", 70, new Thickness(300, 50, 0, 0),
+                setup: x => x.Foreground = new SolidColorBrush(Colors.Black));
+            Canvas.SetZIndex(labelWon, 2);
+            _ = _canvas.Children.Add(labelWon);
+
+            AnimateOpacity(rectWon, 0, 1, 1000);
+            AnimateOpacity(labelWon, 0, 1, 1000, actionOnEnd: x => AddMenuButtons());
+        }
+
+        // ==================== Elements ====================
+        private Image AddPlayerImageElement(string name, string url, int scaleX, Thickness margin = default)
+        {
+            Image imagePlayer = ElementFactory.CreateImage(name, 60, 70, url, x => x.Margin = margin);
+            _ = GameGrid.Children.Add(imagePlayer);
+            imagePlayer.RenderTransform = new ScaleTransform { ScaleX = scaleX };
+            AnimateOpacity(imagePlayer, 0, 1);
+
+            return imagePlayer;
+        }
+
+        // ==================== Buttons ====================
+        private void AddMenuButtons()
+        {
+            _buttonPlay = ElementFactory.CreateButton(180, 45, "PLAY", new Thickness(0, -50, 0, 0),
+                setup: x => x.Click += ClickOnButtonPlay);
+            _ = GameGrid.Children.Add(_buttonPlay);
+
+            _buttonExit = ElementFactory.CreateButton(180, 45, "EXIT", new Thickness(0, 50, 0, 0),
+                setup: x => x.Click += ClickOnButtonExit);
+            _ = GameGrid.Children.Add(_buttonExit);
+        }
+
+        private void AddMusicButton()
         {
             _buttonMusic = ElementFactory.CreateButton(30, 30, "OFF", new Thickness(-0, -0, 0, 0),
                 setup: x =>
@@ -220,25 +257,44 @@ namespace GameMathWorms
             _ = _canvas.Children.Add(_buttonMusic);
         }
 
-        private void ExitGame()
+        private void RemoveMenuButtons()
         {
-            RemoveButtons();
-
-            Rectangle rectBye = ElementFactory.CreateRectangle(nameof(rectBye), 800, 450, 1,
-                setup: x => x.Fill = new SolidColorBrush(Colors.Black));
-            Grid.SetZIndex(rectBye, 98);
-            _ = GameGrid.Children.Add(rectBye);
-
-            Label labelBye = ElementFactory.CreateLabel(nameof(labelBye), "BYE...", 70, new Thickness(300, 175, 0, 0),
-                setup: x => x.Foreground = new SolidColorBrush(Colors.White));
-            Grid.SetZIndex(labelBye, 99);
-            _ = GameGrid.Children.Add(labelBye);
-
-            AnimateOpacity(rectBye, 0, 1, 1000, isAutoReverse: false);
-            AnimateOpacity(labelBye, 0, 1, 3000, isAutoReverse: false, actionOnEnd: x => Application.Current.Shutdown());
+            GameGrid.Children.Remove(_buttonPlay);
+            GameGrid.Children.Remove(_buttonExit);
         }
 
-        // ========== Timer Events ==========
+        // ==================== Button Events ====================
+        private void ClickOnButtonPlay(object sender, RoutedEventArgs e)
+        {
+            StartGame();
+        }
+
+        private void ClickOnButtonExit(object sender, RoutedEventArgs e)
+        {
+            ExitGame();
+        }
+
+        private void ClickOnButtonMusic(object sender, RoutedEventArgs e)
+        {
+            _isMusicOn = !_isMusicOn;
+
+            if (_isMusicOn)
+            {
+                _buttonMusic.Content = "ON";
+                _buttonMusic.Background = new SolidColorBrush(Colors.Black);
+                _buttonMusic.Foreground = new SolidColorBrush(Colors.White);
+                _soundPlayer.PlayLooping();
+            }
+            else
+            {
+                _buttonMusic.Content = "OFF";
+                _buttonMusic.Background = new SolidColorBrush(Colors.White);
+                _buttonMusic.Foreground = new SolidColorBrush(Colors.Black);
+                _soundPlayer.Stop();
+            }
+        }
+
+        // ==================== Timer Events ====================
         private void PlayerMovementEvent(object sender, EventArgs e)
         {
             MovePlayerOnCanvas(_playerBlue);
@@ -250,7 +306,7 @@ namespace GameMathWorms
             MoveTargetOnCanvas();
         }
 
-        // ========== Key Down Events ==========
+        // ==================== Key Down Events ====================
         private void HandleKeyDownEvent(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -299,98 +355,24 @@ namespace GameMathWorms
             }
         }
 
-        // ========== Game Flow ==========
-        private void SetFinalGoalValue()
-        {
-            Label labelFinalGoalText = ElementFactory.CreateLabel("LabelFinalGoalText", "FINAL GOAL", 10, new Thickness(355, 0, 0, 0));
-            _ = _canvas.Children.Add(labelFinalGoalText);
-
-            Label labelFinalGoalValue = ElementFactory.CreateLabel("LabelFinalGoalValue", "0", 30, new Thickness(360, 15, 0, 0));
-            _ = _canvas.Children.Add(labelFinalGoalValue);
-            labelFinalGoalValue.Content = GameConstants.Game.FinalGoal;
-
-            _playerBlue.ScoreText.Content = _playerBlue.Score;
-            _playerRed.ScoreText.Content = _playerRed.Score;
-        }
-
-        private void PlayWonAnimation(Player player)
-        {            
-            Canvas.SetZIndex(player.Image, 2);
-
-            Rectangle rectWon = ElementFactory.CreateRectangle(nameof(rectWon), 800, 450, 1,
-                setup: x => x.Fill = new SolidColorBrush(Colors.GreenYellow));
-            Canvas.SetZIndex(rectWon, 1);
-            _ = _canvas.Children.Add(rectWon);
-
-            Label labelWon = ElementFactory.CreateLabel(nameof(labelWon), $"WON!", 70, new Thickness(300, 50, 0, 0),
-                setup: x => x.Foreground = new SolidColorBrush(Colors.Black));
-            Canvas.SetZIndex(labelWon, 2);
-            _ = _canvas.Children.Add(labelWon);
-
-            AnimateOpacity(rectWon, 0, 1, 1000);
-            AnimateOpacity(labelWon, 0, 1, 1000, false, actionOnEnd: x => AddButtons());
-        }
-
-        private void MovePlayerOnCanvas(Player player)
-        {
-            if (player.IsMovingLeft && Canvas.GetLeft(player.Image) > 10)
-            {
-                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) - GameConstants.Player.Speed);
-                ((ScaleTransform)player.Image.RenderTransform).ScaleX = -1;
-            }
-            if (player.IsMovingRight && Canvas.GetLeft(player.Image) + (player.Image.Width * 1.4) < Application.Current.MainWindow.Width)
-            {
-                Canvas.SetLeft(player.Image, Canvas.GetLeft(player.Image) + GameConstants.Player.Speed);
-                ((ScaleTransform)player.Image.RenderTransform).ScaleX = 1;
-            }
-        }
-
-        private void MoveTargetOnCanvas()
-        {
-            _target.SetRandomly();
-
-            Canvas.SetLeft(_target.Label, _random.Next(GameConstants.Target.MinPositionX, GameConstants.Target.MaxPositionX));
-            Canvas.SetTop(_target.Label, GameConstants.Target.MinPositionY);
-
-            AnimateFallingObject(_target);
-        }
-
-        private void UpdatePlayerScoreIfIntersectsWithTarget(Player player)
-        {
-            if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) - 100 &&
-                Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 100 &&
-                Canvas.GetTop(_target.Label) >= Canvas.GetTop(player.Image))
-            {
-                player.RecalculateScore(_target);
-                player.ScoreText.Content = player.Score;
-            }
-        }
-
-        private bool IsPlayerWinner(Player player)
-        {
-            return player.Score == GameConstants.Game.FinalGoal;
-        }
-
-        public void AnimateOpacity(
+        // ==================== Animations ====================
+        private void AnimateOpacity(
             FrameworkElement element,
             int from,
             int to,
             int duration = 3000,
-            bool isAutoReverse = false,
             Action<FrameworkElement> actionOnEnd = null)
         {
-            var animationOpacity = new DoubleAnimation
+            DoubleAnimation animationOpacity = new DoubleAnimation
             {
                 From = from,
                 To = to,
-                Duration = new Duration(TimeSpan.FromMilliseconds(duration)),
-                AutoReverse = isAutoReverse
+                Duration = new Duration(TimeSpan.FromMilliseconds(duration))
             };
 
             Storyboard.SetTarget(animationOpacity, element);
             Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(Label.OpacityProperty));
 
-            // Create a storyboard to contain the animation.
             Storyboard storyboardOpacity = new Storyboard();
             storyboardOpacity.Children.Add(animationOpacity);
             storyboardOpacity.Completed += (o, c) =>
@@ -400,10 +382,7 @@ namespace GameMathWorms
             storyboardOpacity.Begin(element);
         }
 
-        // https://docs.microsoft.com/en-us/dotnet/desktop/wpf/graphics-multimedia/how-to-animate-a-property-by-using-a-storyboard?view=netframeworkdesktop-4.8
-        public void AnimateFallingObject(
-            Target target,
-            int targetSpeed = GameConstants.Target.SpeedFalling)
+        private void AnimateFallingObject(Target target, int targetSpeed = GameConstants.Target.SpeedFalling)
         {
             DoubleAnimation animationFalling = new DoubleAnimation
             {

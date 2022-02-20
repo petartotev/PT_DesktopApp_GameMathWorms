@@ -12,3 +12,9 @@ The goal of the game is to get as many targets falling from the sky as needed to
 ## Technologies
 
 - WPF
+
+## Sources of Information
+
+https://docs.microsoft.com/en-us/dotnet/desktop/wpf/graphics-multimedia/how-to-animate-a-property-by-using-a-storyboard?view=netframeworkdesktop-4.8
+
+![Game Screenshot](res/scrot/screenshot_00.jpg)

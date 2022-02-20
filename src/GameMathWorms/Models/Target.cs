@@ -20,7 +20,7 @@ namespace GameMathWorms.Models
 
         public Label Label { get; }
 
-        public void SetRandomly()
+        public void RandomlySet()
         {
             SetRandomOperation();
             SetValueByOperation();
@@ -53,10 +53,10 @@ namespace GameMathWorms.Models
             Value = Operation switch
             {
                 TargetOperationEnum.None => 0,
-                TargetOperationEnum.Add => _random.Next(GameConstants.Target.OperationAddMinValue, GameConstants.Target.OperationAddMaxValue),
-                TargetOperationEnum.Subtract => _random.Next(GameConstants.Target.OperationSubtractMinValue, GameConstants.Target.OperationSubtractMaxValue),
-                TargetOperationEnum.Multiply => _random.Next(GameConstants.Target.OperationMultiplyMinValue, GameConstants.Target.OperationMultiplyMaxValue),
-                TargetOperationEnum.Divide => _random.Next(GameConstants.Target.OperationDivideMinValue, GameConstants.Target.OperationDivideMaxValue),
+                TargetOperationEnum.Add => _random.Next(GameConstants.Target.Operation.AddMinValue, GameConstants.Target.Operation.AddMaxValue),
+                TargetOperationEnum.Subtract => _random.Next(GameConstants.Target.Operation.SubtractMinValue, GameConstants.Target.Operation.SubtractMaxValue),
+                TargetOperationEnum.Multiply => _random.Next(GameConstants.Target.Operation.MultiplyMinValue, GameConstants.Target.Operation.MultiplyMaxValue),
+                TargetOperationEnum.Divide => _random.Next(GameConstants.Target.Operation.DivideMinValue, GameConstants.Target.Operation.DivideMaxValue),
                 _ => 0
             };
         }
