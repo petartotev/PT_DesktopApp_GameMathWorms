@@ -32,7 +32,7 @@ namespace GameMathWorms.Models
             Canvas canvas = new Canvas
             {
                 Name = name,
-                Background = new SolidColorBrush(Colors.Yellow),
+                Background = new SolidColorBrush(Colors.White),
                 Focusable = true
             };
 

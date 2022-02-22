@@ -43,6 +43,8 @@ namespace GameMathWorms
         // ==================== Game Flow ====================
         private void InitializeGame()
         {
+            GameGrid.Background = new SolidColorBrush(Colors.Yellow);
+
             _ = AddPlayerImageElement("ImageBlue", "/worm_cyan.png", scaleX: 1, new Thickness(-720, 340, 0, 0));
             _ = AddPlayerImageElement("ImageRed", "/worm_magenta.png", scaleX: -1, new Thickness(720, 340, 0, 0));
 
@@ -188,8 +190,8 @@ namespace GameMathWorms
 
         private void UpdatePlayerScoreIfIntersectsWithTarget(Player player)
         {
-            if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) - 100 &&
-                Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 100 &&
+            if (Canvas.GetLeft(_target.Label) > Canvas.GetLeft(player.Image) - 20 &&
+                Canvas.GetLeft(_target.Label) < Canvas.GetLeft(player.Image) + 80 &&
                 Canvas.GetTop(_target.Label) >= Canvas.GetTop(player.Image))
             {
                 player.RecalculateScore(_target);
@@ -387,7 +389,7 @@ namespace GameMathWorms
             DoubleAnimation animationFalling = new DoubleAnimation
             {
                 From = GameConstants.Target.MinPositionY,
-                To = GameConstants.Canvas.HeightMax + 200,
+                To = GameConstants.Canvas.HeightMax - 50,
                 Duration = new Duration(TimeSpan.FromSeconds(targetSpeed)),
                 AutoReverse = false
             };
