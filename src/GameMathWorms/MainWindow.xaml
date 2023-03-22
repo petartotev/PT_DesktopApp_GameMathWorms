@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GameMathWorms"
         mc:Ignorable="d"
-        Title="Math Worms" Height="450" Width="800">
+        Title="Math Worms" Height="450" Width="800"
+        ResizeMode="CanMinimize">
     <Grid Name="GameGrid">
     </Grid>
 </Window>
