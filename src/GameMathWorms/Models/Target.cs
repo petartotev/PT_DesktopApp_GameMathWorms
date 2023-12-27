@@ -8,6 +8,7 @@ namespace GameMathWorms.Models
     public class Target
     {
         private readonly Random _random = new Random();
+        private readonly int[] _multipliers = new[] { -1, 2, 3 }; 
 
         public Target(Label label)
         {
@@ -55,7 +56,7 @@ namespace GameMathWorms.Models
                 TargetOperationEnum.None => 0,
                 TargetOperationEnum.Add => _random.Next(GameConstants.Target.Operation.AddMinValue, GameConstants.Target.Operation.AddMaxValue),
                 TargetOperationEnum.Subtract => _random.Next(GameConstants.Target.Operation.SubtractMinValue, GameConstants.Target.Operation.SubtractMaxValue),
-                TargetOperationEnum.Multiply => _random.Next(GameConstants.Target.Operation.MultiplyMinValue, GameConstants.Target.Operation.MultiplyMaxValue),
+                TargetOperationEnum.Multiply => _multipliers[_random.Next(0, _multipliers.Length)],
                 TargetOperationEnum.Divide => _random.Next(GameConstants.Target.Operation.DivideMinValue, GameConstants.Target.Operation.DivideMaxValue),
                 _ => 0
             };
